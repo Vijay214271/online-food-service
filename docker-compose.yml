@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: microservices_db
+    ports:
+      - "3306:3306"
+    networks:
+      - microservices-network
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  eureka-server:
+    image: vijay214271/eureka-server
+    container_name: eureka-server
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
+
+  api-gateway:
+    image: vijay214271/api-gateway
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    networks:
+      - microservices-network
+
+  user-service:
+    image: vijay214271/user-service
+    container_name: user-service
+    restart: always
+    depends_on:
+      - mysql-db
+      - eureka-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/microservices_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: admin
+    networks:
+      - microservices-network
+
+  restaurant-service:
+    image: vijay214271/restaurant-service
+    container_name: restaurant-service
+    restart: always
+    depends_on:
+      - mysql-db
+      - eureka-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/microservices_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: admin
+    networks:
+      - microservices-network
+
+  order-service:
+    image: vijay214271/order-service
+    container_name: order-service
+    restart: always
+    depends_on:
+      - mysql-db
+      - eureka-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/microservices_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: admin
+    networks:
+      - microservices-network
+
+  payment-service:
+    image: vijay214271/payment-service
+    container_name: payment-service
+    restart: always
+    depends_on:
+      - mysql-db
+      - eureka-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/microservices_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: admin
+    networks:
+      - microservices-network
+
+  delivery-service:
+    image: vijay214271/delivery-service
+    container_name: delivery-service
+    restart: always
+    depends_on:
+      - mysql-db
+      - eureka-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/microservices_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: admin
+    networks:
+      - microservices-network
+
+  email-service:
+    image: vijay214271/email-service
+    container_name: email-service
+    restart: always
+    depends_on:
+      - eureka-server
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+
+volumes:
+  mysql_data:
